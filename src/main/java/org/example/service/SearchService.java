@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SearchService {
@@ -54,5 +55,8 @@ public class SearchService {
 
     public List<SearchHistory> recentSearches(String userId) {
         return historyRepo.findTop5ByUserIdOrderByTimestampDesc(userId);
+    }
+    public Optional<Job> getById(String id) {
+        return jobRepo.findById(id);
     }
 }

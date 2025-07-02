@@ -21,21 +21,21 @@ public class SearchService {
         this.jobRepo = jobRepo;
         this.historyRepo = historyRepo;
     }
+
     public Page<Job> getAllJobs(Pageable pageable) {
         return jobRepo.findAll(pageable);
     }
 
 
-
     public Page<Job> searchJobs(String title, String city, String userId, List<String> types, Pageable pageable) {
-        if (userId != null && (title != null || city != null)) {
-            SearchHistory history = new SearchHistory();
-            history.setUserId(userId);
-            history.setTitle(title);
-            history.setCity(city);
-            history.setTimestamp(LocalDateTime.now());
-            historyRepo.save(history);
-        }
+        
+        SearchHistory history = new SearchHistory();
+        history.setUserId(userId);
+        history.setTitle(title);
+        history.setCity(city);
+        history.setTimestamp(LocalDateTime.now());
+        historyRepo.save(history);
+
 
         // Smart search
         if (title != null && city != null) {
@@ -50,13 +50,18 @@ public class SearchService {
     }
 
     public Page<Job> jobsInCity(String city, Pageable pageable) {
+        SearchHistory history = new SearchHistory();
+        history.setCity(city);
+        historyRepo.save(history);
         return jobRepo.findByCityIgnoreCase(city, pageable);
     }
 
     public List<SearchHistory> recentSearches(String userId) {
         return historyRepo.findTop5ByUserIdOrderByTimestampDesc(userId);
     }
+
     public Optional<Job> getById(String id) {
+
         return jobRepo.findById(id);
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -24,14 +25,27 @@ public class SearchService {
     }
 
 
-    public Page<Job> searchJobs(String title, String city, String userId, Pageable pageable) {
-        SearchHistory hist = new SearchHistory();
-        hist.setUserId(userId);
-        hist.setCity(city);
-        hist.setPosition(title);
-        historyRepo.save(hist);
 
-        return jobRepo.findByTitleContainingIgnoreCaseAndCityIgnoreCase(title, city, pageable);
+    public Page<Job> searchJobs(String title, String city, String userId, List<String> types, Pageable pageable) {
+        if (userId != null && (title != null || city != null)) {
+            SearchHistory history = new SearchHistory();
+            history.setUserId(userId);
+            history.setTitle(title);
+            history.setCity(city);
+            history.setTimestamp(LocalDateTime.now());
+            historyRepo.save(history);
+        }
+
+        // Smart search
+        if (title != null && city != null) {
+            return jobRepo.findByTitleContainingIgnoreCaseAndCityContainingIgnoreCase(title, city, pageable);
+        } else if (title != null) {
+            return jobRepo.findByTitleContainingIgnoreCase(title, pageable);
+        } else if (city != null) {
+            return jobRepo.findByCityIgnoreCase(city, pageable);
+        } else {
+            return jobRepo.findAll(pageable);
+        }
     }
 
     public Page<Job> jobsInCity(String city, Pageable pageable) {

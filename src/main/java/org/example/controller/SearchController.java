@@ -23,12 +23,13 @@ public class SearchController {
 
     @GetMapping("/search")
     public Page<Job> search(
-            @RequestParam String title,
-            @RequestParam String city,
-            @RequestParam String userId,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) List<String> type,
+            @RequestParam(required = false) String userId,
             Pageable pageable
     ) {
-        return searchService.searchJobs(title, city, userId, pageable);
+        return searchService.searchJobs(title, city, userId, type, pageable);
     }
 
     @GetMapping
@@ -49,4 +50,5 @@ public class SearchController {
     public List<SearchHistory> history(@RequestParam String userId) {
         return searchService.recentSearches(userId);
     }
+
 }
